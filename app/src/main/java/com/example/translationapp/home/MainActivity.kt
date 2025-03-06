@@ -1,6 +1,7 @@
-package com.example.translationapp
+package com.example.translationapp.home
 
 import android.os.Bundle
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,12 +16,14 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -47,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.window.PopupProperties
-import androidx.lifecycle.ViewModel
+import androidx.compose.ui.window.isPopupLayout
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.translationapp.ui.theme.TranslationAppTheme
 
@@ -76,6 +79,7 @@ fun MainView(viewModel: TranslationViewModel = viewModel()) {
     var firstLanguage by remember { mutableStateOf("") }
     var secondLanguage by remember { mutableStateOf("") }
     var enteredText by remember { mutableStateOf("") }
+    val isLoading by viewModel.isLoading.collectAsState()
     val context = LocalContext.current
 
     Box(
@@ -130,8 +134,16 @@ fun MainView(viewModel: TranslationViewModel = viewModel()) {
                     targetLang = secondLanguage,
                     text = enteredText
                 )
-            }, modifier = Modifier.padding(bottom = 20.dp)) {
-                Text(text = "Submit", color = Color.White)
+            }, modifier = Modifier.padding(bottom = 20.dp).size(width = 100.dp, height = 40.dp), enabled = !isLoading) {
+                if(isLoading){
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                }else{
+                    Text(text = "Submit", color = Color.White)
+                }
             }
             Text(
                 text = "Result: ",
@@ -230,7 +242,6 @@ fun DropDownTextField(
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

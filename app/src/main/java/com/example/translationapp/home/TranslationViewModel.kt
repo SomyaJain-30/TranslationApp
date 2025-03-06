@@ -1,6 +1,7 @@
-package com.example.translationapp
+package com.example.translationapp.home
 
 import android.util.Log
+import android.widget.ProgressBar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.mlkit.common.model.DownloadConditions
@@ -17,6 +18,9 @@ class TranslationViewModel : ViewModel() {
 
     private val _translatedText = MutableStateFlow("")
     val translatedText: StateFlow<String> = _translatedText
+
+    private val _isLoading = MutableStateFlow(false)
+    var isLoading: StateFlow<Boolean> = _isLoading
 
     fun translate(sourceLang: String, targetLang: String, text: String) {
         val sourceLanguage = getLanguageCode(sourceLang)
@@ -57,11 +61,13 @@ class TranslationViewModel : ViewModel() {
 
     private suspend fun downloadIfNeeded(translator: Translator) {
         try {
+            _isLoading.value = true
             translator.downloadModelIfNeeded(
                 DownloadConditions.Builder()
                     .requireWifi()
                     .build()
             ).await()
+            _isLoading.value = false
         } catch (e: Exception) {
             throw Exception("Failed to download language model: ${e.message}")
         }
